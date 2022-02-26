@@ -93,7 +93,7 @@ app.post('/register',(req,res)=>{
     register.save();
     res.send({message:"hospital account created"});
     
-});
+});//workflow
 //patient register
 app.post('/patientregister',(req,res)=>{
     var sav=Patient({
