@@ -23,7 +23,7 @@ const hospital=new mongoose.Schema({
     place:String,
     branch:String,
     speacility:String,
-    isHospital:Boolean
+   
 });
 //patient list schema
 const patient=new mongoose.Schema({
@@ -35,14 +35,14 @@ const patient=new mongoose.Schema({
     District:String,
     state:String,
     address:String,
-    isPatient:Boolean
+   
 });
 //doctor list schema
 const doctor=new mongoose.Schema({
     Name:String,
     speciality:String,
     hospital:mongoose.Schema.Types.ObjectId,
-    certificate:Buffer,
+    
 })
 const Patient=new mongoose.model("patient",patient);//patient model
 const Hospital=mongoose.model("hospitals",hospital);//hospital model
@@ -51,7 +51,7 @@ const Doctor=mongoose.model("doctors",doctor);//doctor model
 app.get('/',(req,res)=>{
     res.send("home page");
 })
-app.get('/patientsign',(req,res)=>{res.sendFile(__dirname+'/doctorsign.html');})
+
 //patient login
 app.get('/patientlogin',(req,res)=>{
     Patient.find({email:req.body.email},(err,resp)=>{
@@ -93,7 +93,7 @@ app.post('/register',(req,res)=>{
     register.save();
     res.send({message:"hospital account created"});
     
-});
+});//workflow
 //patient register
 app.post('/patientregister',(req,res)=>{
     var sav=Patient({
@@ -117,11 +117,11 @@ var doc=Doctor({
     hospital:req.body.hospital,
 })
 doc.save()
-.then(res.send("created"))
+.then(res.send("doctor created"))
 .catch((err)=>{console.log(err)})
 });
 app.get("/doctor",(req,res)=>{
     Doctor.find({hospital:req.body.hospitalid},(err,resd)=>{
-        res.send({resd})})
+        res.send({"doctor":resd})})
 })
 app.listen(9000);
