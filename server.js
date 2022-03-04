@@ -77,8 +77,7 @@ app.get("/patientlogin", (req, res) => {
   Patient.findOne({ email: req.body.email }, async (err, resp) => {
     if (resp != undefined) {
       // console.log(resp);
-      // console.log(req.user);
-      // console.log(req.body.password, resp.password);
+      console.log(req.body.password, resp.password);
       var verification = await bcrypt.compare(req.body.password, resp.password);
       if (verification) {
         const token = jwt.sign({ id: resp._id }, process.env.TOKEN_AUTH, {
@@ -129,7 +128,12 @@ app.post("/register", async (req, res) => {
     branch: req.body.branch,
     speacility: req.body.speciality,
   });
-  register.save();
+  register
+    .save()
+    .then(res.send({ message: "Hospital created Successfully" }))
+    .catch((err) => {
+      console.log(err);
+    });
   res.send({ message: "hospital account created" });
 }); //workflow
 //patient register
@@ -144,8 +148,13 @@ app.post("/patientregister", async (req, res) => {
     state: req.body.state,
     address: req.body.address,
   });
-  sav.save();
-  res.send({ message: "patient created" });
+  sav
+    .save()
+    .then(res.send({ message: "Patient created successfully" }))
+    .catch((err) => {
+      console.log(err);
+    });
+  // res.send({ message: "patient created" });
 });
 //
 app.post("/doctors", (req, res) => {
