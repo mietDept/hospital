@@ -156,7 +156,6 @@ app.post("/patientregister", async (req, res) => {
     });
   // res.send({ message: "patient created" });
 });
-//
 app.post("/doctors", (req, res) => {
   var doc = Doctor({
     Name: req.body.name,
