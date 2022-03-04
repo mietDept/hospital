@@ -115,6 +115,7 @@ app.get("/hospitallogin", async (req, res) => {
 });
 //hospital register
 app.post("/register", async (req, res) => {
+  console.log(req.body, await bcrypt.genSalt(10));
   var register = Hospital({
     name: req.body.name,
     registerNo: req.body.registerno,
@@ -134,7 +135,7 @@ app.post("/register", async (req, res) => {
     .catch((err) => {
       console.log(err);
     });
-  res.send({ message: "hospital account created" });
+  // res.send({ message: "hospital account created" });
 }); //workflow
 //patient register
 app.post("/patientregister", async (req, res) => {
