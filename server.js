@@ -1,16 +1,20 @@
 const express = require("express");
 const app = express();
 const { Types } = require("mongoose");
-const { ObjectId } = require("mongoose").Types;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dot = require("dotenv");
-// const salt = await bcrypt.genSalt(8);
 dot.config();
 const mongoose = require("mongoose"); //mongodb database
+mongoose.Promise = require("bluebird");
 const bodyparser = require("body-parser");
 app.use(bodyparser.json()); //data in json
 app.use(bodyparser.urlencoded({ extended: true }));
+
+const Hospital = require("./models/Hospital.js");
+const Patient = require("./models/Patient.js");
+const Doctor = require("./models/Doctor.js");
+
 const mongourl = process.env.mongo;
 mongoose
   .connect(mongourl, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -20,40 +24,6 @@ mongoose
   .catch((err) => {
     console.log(err);
   });
-//hospital list schema
-const hospital = new mongoose.Schema({
-  name: String,
-  registerNo: String,
-  certNo: String,
-  gstNo: String,
-  email: String,
-  password: String,
-  phone: String,
-  approvalStatus: String,
-  place: String,
-  branch: String,
-  speacility: String,
-});
-//patient list schema
-const patient = new mongoose.Schema({
-  Name: String,
-  AdhaarNo: Number,
-  PhoneNumber: String,
-  email: String,
-  password: String,
-  District: String,
-  state: String,
-  address: String,
-});
-//doctor list schema
-const doctor = new mongoose.Schema({
-  Name: String,
-  speciality: String,
-  hospital: mongoose.Schema.Types.ObjectId,
-});
-const Patient = new mongoose.model("patient", patient); //patient model
-const Hospital = mongoose.model("hospitals", hospital); //hospital model
-const Doctor = mongoose.model("doctors", doctor); //doctor model
 
 const auth = (req, res, next) => {
   const header = req.headers["authorization"];
@@ -67,16 +37,14 @@ const auth = (req, res, next) => {
     next();
   });
 };
-//home page
+
 app.get("/", (req, res) => {
   res.send("home page");
 });
 
-//patient login
-app.get("/patientlogin", (req, res) => {
+app.get("/patientLogin", (req, res) => {
   Patient.findOne({ email: req.body.email }, async (err, resp) => {
     if (resp != undefined) {
-      // console.log(resp);
       console.log(req.body.password, resp.password);
       var verification = await bcrypt.compare(req.body.password, resp.password);
       if (verification) {
@@ -93,7 +61,7 @@ app.get("/patientlogin", (req, res) => {
   });
 });
 //hospital login
-app.get("/hospitallogin", async (req, res) => {
+app.get("/hospitalLogin", async (req, res) => {
   Hospital.findOne({ email: req.body.email }, async (err, re) => {
     if (re != undefined) {
       console.log(re);
@@ -118,9 +86,9 @@ app.post("/register", async (req, res) => {
   console.log(req.body, await bcrypt.genSalt(10));
   var register = Hospital({
     name: req.body.name,
-    registerNo: req.body.registerno,
-    certNo: req.body.certno,
-    gstNo: req.body.gstno,
+    registerNo: req.body.registerNo,
+    certNo: req.body.certNo,
+    gstNo: req.body.gstNo,
     email: req.body.email,
     password: await bcrypt.hash(req.body.password, await bcrypt.genSalt(10)),
     phone: req.body.phone,
@@ -138,10 +106,10 @@ app.post("/register", async (req, res) => {
   // res.send({ message: "hospital account created" });
 }); //workflow
 //patient register
-app.post("/patientregister", async (req, res) => {
+app.post("/patientRegister", async (req, res) => {
   var sav = Patient({
     Name: req.body.name,
-    AdhaarNo: req.body.adhaarno,
+    AdhaarNo: req.body.adhaarNo,
     PhoneNumber: req.body.phone,
     email: req.body.email,
     password: await bcrypt.hash(req.body.password, await bcrypt.genSalt(10)),
@@ -172,7 +140,7 @@ app.post("/doctors", (req, res) => {
 });
 app.get("/doctor", (req, res) => {
   Doctor.find(
-    { hospital: Types.ObjectId(req.body.hospitalid) },
+    { hospital: Types.ObjectId(req.body.hospitalId) },
     (err, resd) => {
       res.send({ doctor: resd });
     }
