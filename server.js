@@ -83,47 +83,62 @@ app.get("/hospitalLogin", async (req, res) => {
 });
 //hospital register
 app.post("/register", async (req, res) => {
-  console.log(req.body, await bcrypt.genSalt(10));
-  var register = Hospital({
-    name: req.body.name,
-    registerNo: req.body.registerNo,
-    certNo: req.body.certNo,
-    gstNo: req.body.gstNo,
-    email: req.body.email,
-    password: await bcrypt.hash(req.body.password, await bcrypt.genSalt(10)),
-    phone: req.body.phone,
-    approvalStatus: req.body.approval,
-    place: req.body.place,
-    branch: req.body.branch,
-    speacility: req.body.speciality,
+  Hospital.findOne({ email: req.body.email }, (err, hospital) => {
+    if (hospital === undefined) {
+      var register = Hospital({
+        name: req.body.name,
+        registerNo: req.body.registerNo,
+        certNo: req.body.certNo,
+        gstNo: req.body.gstNo,
+        email: req.body.email,
+        password: await bcrypt.hash(
+          req.body.password,
+          await bcrypt.genSalt(10)
+        ),
+        phone: req.body.phone,
+        approvalStatus: req.body.approval,
+        place: req.body.place,
+        branch: req.body.branch,
+        speacility: req.body.speciality,
+      });
+      register
+        .save()
+        .then(res.send({ message: "Hospital created Successfully" }))
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      res.send({ message: "Email already exist" });
+    }
   });
-  register
-    .save()
-    .then(res.send({ message: "Hospital created Successfully" }))
-    .catch((err) => {
-      console.log(err);
-    });
-  // res.send({ message: "hospital account created" });
 }); //workflow
 //patient register
 app.post("/patientRegister", async (req, res) => {
-  var sav = Patient({
-    Name: req.body.name,
-    AdhaarNo: req.body.adhaarNo,
-    PhoneNumber: req.body.phone,
-    email: req.body.email,
-    password: await bcrypt.hash(req.body.password, await bcrypt.genSalt(10)),
-    District: req.body.district,
-    state: req.body.state,
-    address: req.body.address,
+  Patient.findOne({ email: req.body.email }, (err, user) => {
+    if (user === undefined) {
+      var sav = Patient({
+        Name: req.body.name,
+        AdhaarNo: req.body.adhaarNo,
+        PhoneNumber: req.body.phone,
+        email: req.body.email,
+        password: await bcrypt.hash(
+          req.body.password,
+          await bcrypt.genSalt(10)
+        ),
+        District: req.body.district,
+        state: req.body.state,
+        address: req.body.address,
+      });
+      sav
+        .save()
+        .then(res.send({ message: "Patient created successfully" }))
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      res.send({ message: "Email already exist" });
+    }
   });
-  sav
-    .save()
-    .then(res.send({ message: "Patient created successfully" }))
-    .catch((err) => {
-      console.log(err);
-    });
-  // res.send({ message: "patient created" });
 });
 app.post("/doctors", (req, res) => {
   var doc = Doctor({
